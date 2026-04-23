@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReportCraft Studio</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg1: #fff1f7;
+            --bg2: #ffe0ef;
+            --bg3: #ffd3e8;
+            --pink1: #ff5fa2;
+            --pink2: #ff7db6;
+            --pink3: #e84d95;
+            --deep: #7a2149;
+            --text: #4d2740;
+            --muted: #8f6278;
+            --whiteglass: rgba(255, 255, 255, 0.68);
+            --border: rgba(255, 255, 255, 0.45);
+            --shadow: 0 18px 45px rgba(214, 94, 147, 0.16);
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, #fff6fb 0%, transparent 30%),
+                radial-gradient(circle at bottom right, #ffd5e7 0%, transparent 28%),
+                linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+            background-size: 160% 160%;
+            animation: gradientShift 14s ease infinite;
+            overflow-x: hidden;
+        }
+
+        .floating-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(10px);
+            opacity: 0.22;
+            z-index: 0;
+            pointer-events: none;
+            animation: floatBlob 10s ease-in-out infinite;
+        }
+
+        .blob1 {
+            width: 240px;
+            height: 240px;
+            background: #ff9cc8;
+            top: 40px;
+            right: 80px;
+        }
+
+        .blob2 {
+            width: 180px;
+            height: 180px;
+            background: #ffc0da;
+            bottom: 60px;
+            left: 70px;
+            animation-delay: 1.5s;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 92%;
+            max-width: 1250px;
+            margin: 28px auto;
+            background: var(--whiteglass);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            animation: fadeUp 0.85s ease;
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .hero-left h1 {
+            margin: 0;
+            font-size: 3rem;
+            color: #b03060;
+            letter-spacing: 0.3px;
+            animation: slideInLeft 0.8s ease;
+        }
+
+        .hero-left p {
+            margin: 10px 0 0 0;
+            color: var(--muted);
+            font-size: 1.06rem;
+            max-width: 760px;
+            line-height: 1.5;
+            animation: fadeUp 1s ease;
+        }
+
+        .badge {
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.75);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 999px;
+            color: #b03060;
+            font-weight: 700;
+            box-shadow: 0 10px 24px rgba(208, 82, 136, 0.12);
+            animation: pulseGlow 2.8s infinite;
+            white-space: nowrap;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .section {
+            animation: fadeUp 0.9s ease;
+        }
+
+        .panel {
+            padding: 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.52);
+            border: 1px solid rgba(255,255,255,0.4);
+            box-shadow: 0 10px 26px rgba(215, 96, 147, 0.08);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px rgba(215, 96, 147, 0.12);
+        }
+
+        .full-width {
+            grid-column: 1 / span 2;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--deep);
+            font-size: 1.02rem;
+        }
+
+        select,
+        input,
+        button {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1.5px solid #f0a7c5;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        select,
+        input {
+            background: rgba(255, 255, 255, 0.86);
+            color: var(--text);
+        }
+
+        select:focus,
+        input:focus {
+            border-color: var(--pink3);
+            box-shadow: 0 0 0 5px rgba(232, 77, 149, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .small-note {
+            margin-top: 7px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, var(--pink1), var(--pink2));
+            color: white;
+            border: none;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            cursor: pointer;
+            box-shadow: 0 12px 26px rgba(255, 95, 162, 0.28);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -130%;
+            width: 120%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.38), transparent);
+            transition: left 0.65s ease;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 16px 30px rgba(255, 95, 162, 0.35);
+        }
+
+        .generate-btn:hover::before {
+            left: 120%;
+        }
+
+        .generate-btn:active {
+            transform: scale(0.99);
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+            animation: fadeUp 1s ease;
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,241,247,0.98));
+            border: 1px solid #f4c1d6;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 10px 22px rgba(206, 92, 135, 0.08);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 28px rgba(206, 92, 135, 0.16);
+        }
+
+        .card-title {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.55px;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #c03a76;
+        }
+
+        .result-box,
+        .insight-box,
+        .error-box {
+            margin-top: 20px;
+            padding: 16px 18px;
+            border-radius: 18px;
+            animation: fadeUp 0.65s ease;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #ffe6f0, #fff4f8);
+            border-left: 6px solid #e0528f;
+            color: #8d1f56;
+            font-weight: bold;
+            box-shadow: 0 9px 20px rgba(224, 82, 143, 0.1);
+        }
+
+        .insight-box {
+            background: linear-gradient(135deg, #fff1f7, #ffe3ef);
+            border-left: 6px solid #ff6fa9;
+            box-shadow: 0 10px 22px rgba(255, 111, 169, 0.11);
+        }
+
+        .insight-box h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #b03060;
+        }
+
+        .insight-box ul {
+            margin: 0;
+            padding-left: 22px;
+            color: #6c3551;
+            line-height: 1.65;
+        }
+
+        .error-box {
+            background: #fff0f1;
+            border-left: 6px solid #e14d5b;
+            color: #9b2333;
+            font-weight: bold;
+        }
+
+        .table-wrap {
+            margin-top: 22px;
+            overflow-x: auto;
+            animation: fadeUp 0.8s ease;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.94);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(199, 91, 132, 0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #ff72ad, #e54b88);
+            color: white;
+            padding: 13px 10px;
+            text-align: left;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f7cada;
+            color: #5f3146;
+            transition: background 0.2s ease;
+        }
+
+        tr:nth-child(even) td {
+            background: rgba(255, 244, 248, 0.76);
+        }
+
+        tr:hover td {
+            background: rgba(255, 226, 238, 0.9);
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 6px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .grade-a { background: #ffd4e5; color: #9f1650; }
+        .grade-b { background: #ffe1ef; color: #ad2f68; }
+        .grade-c { background: #fff0f7; color: #a04b72; }
+        .grade-d { background: #ffe8ee; color: #c4455a; }
+
+        .status-pass { background: #ffe0ef; color: #b03060; }
+        .status-fail { background: #fff1f4; color: #d14c65; }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes floatBlob {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            50% { transform: translateY(-18px) translateX(12px); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 10px 24px rgba(208, 82, 136, 0.12); }
+            50% { box-shadow: 0 14px 32px rgba(208, 82, 136, 0.2); }
+        }
+
+        @media (max-width: 1000px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: auto;
+            }
+
+            .hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-left h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-blob blob1"></div>
+    <div class="floating-blob blob2"></div>
+
+    <div class="container">
+        <div class="hero">
+            <div class="hero-left">
+                <h1>ReportCraft Studio</h1>
+                <p>Generate custom reports, filters, insights, and summaries from large datasets with a cleaner, smarter, more visual reporting experience.</p>
+            </div>
+            <div class="badge">College Scale Ready</div>
+        </div>
+
+        <div class="grid">
+            <div class="section panel">
+                <label>Select Columns</label>
+                <select id="columns" multiple size="10"></select>
+                <div class="small-note">Hold Ctrl to select multiple columns.</div>
+            </div>
+
+            <div class="section panel">
+                <label>Filter Column</label>
+                <select id="filter_column"></select>
+
+                <label style="margin-top:12px;">Filter Value</label>
+                <input type="text" id="filter_value" placeholder="Example: 70 or CSE">
+            </div>
+
+            <div class="section panel">
+                <label>Sort By</label>
+                <select id="sort_column"></select>
+            </div>
+
+            <div class="section panel">
+                <label>Sort Order</label>
+                <select id="sort_order">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+
+            <div class="section panel">
+                <label>Calculation</label>
+                <select id="calculation">
+                    <option value="">None</option>
+                    <option value="average">Average</option>
+                    <option value="sum">Sum</option>
+                    <option value="max">Maximum</option>
+                    <option value="min">Minimum</option>
+                </select>
+            </div>
+
+            <div class="section panel">
+                <label>Calculation Column</label>
+                <select id="calc_column"></select>
+            </div>
+
+            <div class="section panel">
+                <label>Row Limit</label>
+                <select id="row_limit">
+                    <option value="25">25</option>
+                    <option value="50" selected>50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                </select>
+            </div>
+
+            <div class="section panel">
+                <label>Custom Formula</label>
+                <input type="text" id="custom_formula" placeholder="Example: Marks*0.7 + Attendance*0.3">
+                <div class="small-note">Use exact column names like Marks, Attendance, Percentage.</div>
+            </div>
+
+            <div class="section full-width">
+                <button class="generate-btn" onclick="generateReport()">Generate Report</button>
+            </div>
+        </div>
+
+        <div id="summary_cards" class="cards"></div>
+        <div id="calc_result"></div>
+        <div id="insights_box"></div>
+        <div id="error_box"></div>
+        <div id="report_table"></div>
+    </div>
+
+    <script>
+        async function loadColumns() {
+            try {
+                const response = await fetch("/get-columns");
+                const payload = await response.json();
+
+                const columns = payload.columns || [];
+
+                const columnSelect = document.getElementById("columns");
+                const filterColumn = document.getElementById("filter_column");
+                const sortColumn = document.getElementById("sort_column");
+                const calcColumn = document.getElementById("calc_column");
+
+                columnSelect.innerHTML = "";
+                filterColumn.innerHTML = "";
+                sortColumn.innerHTML = "";
+                calcColumn.innerHTML = "";
+
+                columns.forEach(col => {
+                    columnSelect.add(new Option(col, col));
+                    filterColumn.add(new Option(col, col));
+                    sortColumn.add(new Option(col, col));
+                    calcColumn.add(new Option(col, col));
+                });
+            } catch (err) {
+                document.getElementById("error_box").innerHTML =
+                    "<div class='error-box'>Could not load columns. Check app.py or data.csv.</div>";
+            }
+        }
+
+        function renderSummaryCards(cards) {
+            const container = document.getElementById("summary_cards");
+            let html = "";
+
+            for (const key in cards) {
+                html += `
+                    <div class="card">
+                        <div class="card-title">${key}</div>
+                        <div class="card-value">${cards[key]}</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function formatCell(key, value) {
+            if (value === null || value === undefined) return "";
+
+            if (key === "Grade") {
+                const gradeClass = `grade-${String(value).toLowerCase()}`;
+                return `<span class="pill ${gradeClass}">${value}</span>`;
+            }
+
+            if (key === "Status") {
+                const statusClass = String(value).toLowerCase() === "pass" ? "status-pass" : "status-fail";
+                return `<span class="pill ${statusClass}">${value}</span>`;
+            }
+
+            return value;
+        }
+
+        async function generateReport() {
+            document.getElementById("error_box").innerHTML = "";
+
+            const columns = Array.from(document.getElementById("columns").selectedOptions).map(opt => opt.value);
+
+            const payload = {
+                columns: columns,
+                filter_column: document.getElementById("filter_column").value,
+                filter_value: document.getElementById("filter_value").value,
+                sort_column: document.getElementById("sort_column").value,
+                sort_order: document.getElementById("sort_order").value,
+                calculation: document.getElementById("calculation").value,
+                calc_column: document.getElementById("calc_column").value,
+                row_limit: document.getElementById("row_limit").value,
+                custom_formula: document.getElementById("custom_formula").value
+            };
+
+            try {
+                const response = await fetch("/generate-report", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    document.getElementById("error_box").innerHTML =
+                        `<div class="error-box">${result.error}</div>`;
+                    return;
+                }
+
+                renderSummaryCards(result.summary_cards || {});
+
+                if (result.calculation_result !== null && result.calculation_result !== undefined) {
+                    document.getElementById("calc_result").innerHTML =
+                        `<div class="result-box">Calculation Result: ${result.calculation_result}</div>`;
+                } else {
+                    document.getElementById("calc_result").innerHTML = "";
+                }
+
+                if (result.insights && result.insights.length > 0) {
+                    let insightsHtml = "<div class='insight-box'><h3>Quick Insights</h3><ul>";
+                    result.insights.forEach(item => {
+                        insightsHtml += `<li>${item}</li>`;
+                    });
+                    insightsHtml += "</ul></div>";
+                    document.getElementById("insights_box").innerHTML = insightsHtml;
+                } else {
+                    document.getElementById("insights_box").innerHTML = "";
+                }
+
+                let html = "";
+                if (result.rows && result.rows.length > 0) {
+                    html += "<div class='table-wrap'><table><tr>";
+                    Object.keys(result.rows[0]).forEach(key => {
+                        html += `<th>${key}</th>`;
+                    });
+                    html += "</tr>";
+
+                    result.rows.forEach(row => {
+                        html += "<tr>";
+                        Object.keys(row).forEach(key => {
+                            html += `<td>${formatCell(key, row[key])}</td>`;
+                        });
+                        html += "</tr>";
+                    });
+
+                    html += "</table></div>";
+                } else {
+                    html = "<div class='result-box'>No data found.</div>";
+                }
+
+                document.getElementById("report_table").innerHTML = html;
+            } catch (err) {
+                document.getElementById("error_box").innerHTML =
+                    "<div class='error-box'>Something went wrong while generating the report.</div>";
+            }
+        }
+
+        loadColumns();
+    </script>
+</body>
+</html>
